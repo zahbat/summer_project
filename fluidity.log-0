@@ -1,0 +1,1639 @@
+Fluidity command line:
+ fluidity -l -v3 cube_disp_checkpoint.flml 
+Environment variables relevant for fluidity:
+ none
+fluidity_options/
+  simulation_name/
+    __value/
+     <value>: cube_disp_checkpoint
+      lines: 1
+  problem_type/
+    __value/
+     <value>: fluids
+      lines: 1
+  geometry/
+    dimension/
+      __value/
+       <value>: 3 
+        rank: 0
+    mesh::CoordinateMesh/
+      name: CoordinateMesh
+      from_file/
+        file_name: cube_disp_CoordinateMesh_1_checkpoint
+        format::gmsh/
+          name: gmsh
+        stat/
+          include_in_stat: NULL
+    mesh::VelocityMesh/
+      name: VelocityMesh
+      from_mesh/
+        mesh::CoordinateMesh/
+          name: CoordinateMesh
+        stat/
+          exclude_from_stat: NULL
+    mesh::PressureMesh/
+      name: PressureMesh
+      from_mesh/
+        mesh::CoordinateMesh/
+          name: CoordinateMesh
+        stat/
+          exclude_from_stat: NULL
+    quadrature/
+      degree/
+        __value/
+         <value>: 4 
+          rank: 0
+  io/
+    dump_format/
+      __value: vtk
+    dump_period_in_timesteps/
+      constant/
+        __value/
+         <value>: 10 
+          rank: 0
+    output_mesh::VelocityMesh/
+      name: VelocityMesh
+    checkpointing/
+      checkpoint_period_in_dumps/
+        __value/
+         <value>: 25 
+          rank: 0
+      checkpoint_at_end: NULL
+    stat: NULL
+    detectors/
+      fail_outside_domain: NULL
+  timestepping/
+    current_time/
+      __value/
+       <value>: 1 
+        rank: 0
+    timestep/
+      __value/
+       <value>: 1 
+        rank: 0
+    finish_time/
+      __value/
+       <value>: 20000 
+        rank: 0
+    nonlinear_iterations/
+      __value/
+       <value>: 2 
+        rank: 0
+  material_phase::Air/
+    name: Air
+    scalar_field::Pressure/
+      name: Pressure
+      rank: 0
+      prognostic/
+        mesh::PressureMesh/
+          name: PressureMesh
+        spatial_discretisation/
+          continuous_galerkin: NULL
+        scheme/
+          poisson_pressure_solution/
+            __value/
+             <value>: never
+              lines: 1
+          use_projection_method: NULL
+        solver/
+          iterative_method::cg/
+            name: cg
+          preconditioner::hypre/
+            name: hypre
+            hypre_type::boomeramg/
+              name: boomeramg
+          relative_error/
+            __value/
+             <value>: 1e-07 
+              rank: 0
+          max_iterations/
+            __value/
+             <value>: 1700 
+              rank: 0
+          never_ignore_solver_failures: NULL
+          diagnostics/
+            print_norms: NULL
+            monitors/
+              preconditioned_residual: NULL
+        boundary_conditions::Outlet/
+          name: Outlet
+          surface_ids/
+            __value/
+             <value>: 4 
+              rank: 1
+              shape: 1
+          type::dirichlet/
+            name: dirichlet
+            constant/
+              __value/
+               <value>: 0 
+                rank: 0
+        output: NULL
+        stat: NULL
+        convergence/
+          include_in_convergence: NULL
+        detectors/
+          exclude_from_detectors: NULL
+        steady_state/
+          include_in_steady_state: NULL
+        consistent_interpolation: NULL
+        initial_condition::WholeMesh/
+          name: WholeMesh
+          from_file/
+            file_name: cube_disp_PressureMesh.vtu
+            format::vtu/
+              name: vtu
+    vector_field::Velocity/
+      name: Velocity
+      rank: 1
+      prognostic/
+        mesh::VelocityMesh/
+          name: VelocityMesh
+        equation::Boussinesq/
+          name: Boussinesq
+        spatial_discretisation/
+          continuous_galerkin/
+            stabilisation/
+              no_stabilisation: NULL
+            mass_terms/
+              lump_mass_matrix: NULL
+            advection_terms: NULL
+            stress_terms/
+              tensor_form: NULL
+            les_model/
+              second_order/
+                smagorinsky_coefficient/
+                  __value/
+                   <value>: 0.1 
+                    rank: 0
+                length_scale_type: tensor
+            buoyancy: NULL
+          conservative_advection/
+            __value/
+             <value>: 0 
+              rank: 0
+        temporal_discretisation/
+          theta/
+            __value/
+             <value>: 0.5 
+              rank: 0
+          relaxation/
+            __value/
+             <value>: 0.5 
+              rank: 0
+        solver/
+          iterative_method::gmres/
+            name: gmres
+            restart/
+              __value/
+               <value>: 30 
+                rank: 0
+          preconditioner::sor/
+            name: sor
+          relative_error/
+            __value/
+             <value>: 1e-07 
+              rank: 0
+          max_iterations/
+            __value/
+             <value>: 700 
+              rank: 0
+          never_ignore_solver_failures: NULL
+          diagnostics/
+            print_norms: NULL
+            monitors/
+              preconditioned_residual: NULL
+        boundary_conditions::Inflow/
+          name: Inflow
+          surface_ids/
+            __value/
+             <value>: 1 
+              rank: 1
+              shape: 1
+          type::dirichlet/
+            name: dirichlet
+            align_bc_with_cartesian/
+              x_component/
+                synthetic_eddy_method/
+                  number_of_eddies/
+                    __value/
+                     <value>: 4000 
+                      rank: 0
+                  turbulence_lengthscale/
+                    constant/
+                      __value/
+                       <value>: 20 
+                        rank: 0
+                  mean_profile/
+                    python/
+                      __value/
+                       <value>: def val(X,t):
+   import numpy as np
+   Uref = 2.0
+   h = 100.0
+   znorm = X[2]/h
+   
+   if X[2] > 0.0:
+      u = 0.1768*np.log(znorm) + 1.0226
+   else:
+      u = 0.0
+      
+   u = u*Uref
+      
+   return u
+                        lines: 20
+                        type: code
+                        language: python
+                  Re_stresses_profile/
+                    python/
+                      __value/
+                       <value>: def val(X,t):
+   import numpy as np
+   Uref = 2.0
+   h = 100.0
+   znorm = X[2]/h
+   
+   uu_norm = 0.007*np.power(znorm,3) + 0.0085*np.power(znorm,2) - 0.0337*znorm + 0.0192
+
+   
+   uu = uu_norm*np.power(Uref,2)
+   
+   if X[2]>h:
+     uu_norm = 0.007 + 0.0085 - 0.0337 + 0.0192
+     uu = uu_norm*np.power(Uref,2)
+   if X[2]==0:
+     uu=0.0
+   uu = 2.*uu
+   return uu
+                        lines: 20
+                        type: code
+                        language: python
+              y_component/
+                synthetic_eddy_method/
+                  number_of_eddies/
+                    __value/
+                     <value>: 4000 
+                      rank: 0
+                  turbulence_lengthscale/
+                    constant/
+                      __value/
+                       <value>: 20 
+                        rank: 0
+                  mean_profile/
+                    constant/
+                      __value/
+                       <value>: 0 
+                        rank: 0
+                  Re_stresses_profile/
+                    python/
+                      __value/
+                       <value>: def val(X,t):
+   import numpy as np
+   Uref = 2.0
+   h = 100.0
+   znorm = X[2]/h
+   
+   vv_norm = -0.0076*np.power(znorm,3) + 0.02*np.power(znorm,2) - 0.0218*znorm + 0.0099
+
+   
+   vv = vv_norm*np.power(Uref,2)
+   
+   if X[2]>h:
+     vv_norm = -0.0076 + 0.02 - 0.0218 + 0.0099
+     vv = vv_norm*np.power(Uref,2)
+   if X[2]==0:
+     vv=0.0
+   vv = 2.*vv
+   return vv
+                        lines: 20
+                        type: code
+                        language: python
+              z_component/
+                synthetic_eddy_method/
+                  number_of_eddies/
+                    __value/
+                     <value>: 4000 
+                      rank: 0
+                  turbulence_lengthscale/
+                    constant/
+                      __value/
+                       <value>: 20 
+                        rank: 0
+                  mean_profile/
+                    constant/
+                      __value/
+                       <value>: 0 
+                        rank: 0
+                  Re_stresses_profile/
+                    python/
+                      __value/
+                       <value>: def val(X,t):
+   import numpy as np
+   Uref = 2.0
+   h = 100.0
+   znorm = X[2]/h
+   
+   ww_norm = -0.0021*np.power(znorm,3) + 0.0064*np.power(znorm,2) - 0.0097*znorm + 0.0061
+   
+   ww = ww_norm*np.power(Uref,2)
+   
+   if X[2]>h:
+     ww_norm = -0.0021 + 0.0064 - 0.0097 + 0.0061
+     ww = ww_norm*np.power(Uref,2)
+   if X[2]==0:
+     ww=0.0
+   ww = 2.*ww
+   return ww
+                        lines: 20
+                        type: code
+                        language: python
+        boundary_conditions::Sides/
+          name: Sides
+          surface_ids/
+            __value/
+             <value>: 2 
+              rank: 1
+              shape: 1
+          type::dirichlet/
+            name: dirichlet
+            align_bc_with_cartesian/
+              y_component/
+                constant/
+                  __value/
+                   <value>: 0 
+                    rank: 0
+        boundary_conditions::Top/
+          name: Top
+          surface_ids/
+            __value/
+             <value>: 3 
+              rank: 1
+              shape: 1
+          type::dirichlet/
+            name: dirichlet
+            align_bc_with_cartesian/
+              z_component/
+                constant/
+                  __value/
+                   <value>: 0 
+                    rank: 0
+        boundary_conditions::BottomandWalls/
+          name: BottomandWalls
+          surface_ids/
+            __value/
+             <value>: 5 6 
+              rank: 1
+              shape: 2
+          type::dirichlet/
+            name: dirichlet
+            align_bc_with_cartesian/
+              x_component/
+                constant/
+                  __value/
+                   <value>: 0 
+                    rank: 0
+              y_component/
+                constant/
+                  __value/
+                   <value>: 0 
+                    rank: 0
+              z_component/
+                constant/
+                  __value/
+                   <value>: 0 
+                    rank: 0
+        tensor_field::Viscosity/
+          name: Viscosity
+          rank: 2
+          prescribed/
+            value::WholeMesh/
+              name: WholeMesh
+              anisotropic_symmetric/
+                constant/
+                  __value/
+                   <value>: 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 
+                    rank: 2
+                    shape: 3 3
+                    symmetric: true
+                    dim2: dim
+                    dim1: dim
+            output/
+              exclude_from_vtu: NULL
+        output: NULL
+        stat/
+          include_in_stat: NULL
+          previous_time_step/
+            exclude_from_stat: NULL
+          nonlinear_field/
+            exclude_from_stat: NULL
+        convergence/
+          include_in_convergence: NULL
+        detectors/
+          exclude_from_detectors: NULL
+        steady_state/
+          include_in_steady_state: NULL
+        consistent_interpolation: NULL
+        initial_condition::WholeMesh/
+          name: WholeMesh
+          from_file/
+            file_name: cube_disp_VelocityMesh_1_checkpoint.vtu
+            format::vtu/
+              name: vtu
+    scalar_field::CFLNumber/
+      name: CFLNumber
+      rank: 0
+      diagnostic/
+        algorithm::Internal/
+          name: Internal
+          material_phase_support: multiple
+        mesh::PressureMesh/
+          name: PressureMesh
+        output: NULL
+        stat: NULL
+        convergence/
+          include_in_convergence: NULL
+        detectors/
+          exclude_from_detectors: NULL
+        steady_state/
+          include_in_steady_state: NULL
+    scalar_field::tracer1/
+      name: tracer1
+      rank: 0
+      prognostic/
+        mesh::PressureMesh/
+          name: PressureMesh
+        equation::AdvectionDiffusion/
+          name: AdvectionDiffusion
+        spatial_discretisation/
+          control_volumes/
+            face_value::FiniteElement/
+              name: FiniteElement
+              limit_face_value/
+                limiter::Sweby/
+                  name: Sweby
+            diffusion_scheme::ElementGradient/
+              name: ElementGradient
+          conservative_advection/
+            __value/
+             <value>: 0 
+              rank: 0
+        temporal_discretisation/
+          theta/
+            __value/
+             <value>: 0.5 
+              rank: 0
+          control_volumes/
+            number_advection_iterations/
+              __value/
+               <value>: 2 
+                rank: 0
+        solver/
+          iterative_method::cg/
+            name: cg
+          preconditioner::hypre/
+            name: hypre
+            hypre_type::boomeramg/
+              name: boomeramg
+          relative_error/
+            __value/
+             <value>: 1e-07 
+              rank: 0
+          absolute_error/
+            __value/
+             <value>: 1e-10 
+              rank: 0
+          max_iterations/
+            __value/
+             <value>: 500 
+              rank: 0
+          never_ignore_solver_failures: NULL
+          diagnostics/
+            monitors: NULL
+        boundary_conditions::Inflow/
+          name: Inflow
+          surface_ids/
+            __value/
+             <value>: 1 
+              rank: 1
+              shape: 1
+          type::dirichlet/
+            name: dirichlet
+            constant/
+              __value/
+               <value>: 0 
+                rank: 0
+        tensor_field::Diffusivity/
+          name: Diffusivity
+          rank: 2
+          prescribed/
+            value::WholeMesh/
+              name: WholeMesh
+              anisotropic_symmetric/
+                constant/
+                  __value/
+                   <value>: 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 
+                    rank: 2
+                    shape: 3 3
+                    symmetric: true
+                    dim2: dim
+                    dim1: dim
+            output: NULL
+        scalar_field::Source/
+          name: Source
+          rank: 0
+          prescribed/
+            value::WholeMesh/
+              name: WholeMesh
+              python/
+                __value/
+                 <value>: def val(X,t):
+  import numpy as np
+  X0 = -48.
+  Y0 = 0.0
+  Z0 = 12.
+  R = 4.
+  
+  s = 0.0
+  if(np.sqrt((X[0]-X0)**2. + (X[1]-Y0)**2. + (X[2]-Z0)**2.))<=R:
+    s = 10.
+  
+  return s
+                  type: code
+                  lines: 20
+                  language: python
+            output: NULL
+            stat: NULL
+            detectors/
+              exclude_from_detectors: NULL
+        output: NULL
+        stat: NULL
+        convergence/
+          include_in_convergence: NULL
+        detectors/
+          include_in_detectors: NULL
+        steady_state/
+          include_in_steady_state: NULL
+        consistent_interpolation: NULL
+        initial_condition::WholeMesh/
+          name: WholeMesh
+          from_file/
+            file_name: cube_disp_PressureMesh_1_checkpoint.vtu
+            format::vtu/
+              name: vtu
+    scalar_field::tracer1Average/
+      name: tracer1Average
+      rank: 0
+      diagnostic/
+        algorithm::time_averaged_scalar/
+          name: time_averaged_scalar
+          material_phase_support: single
+          source_field_type: scalar
+          source_field_name: tracer1
+          spin_up_time/
+            __value/
+             <value>: 50 
+              rank: 0
+        mesh::VelocityMesh/
+          name: VelocityMesh
+        output: NULL
+        stat: NULL
+        convergence/
+          include_in_convergence: NULL
+        detectors/
+          include_in_detectors: NULL
+        steady_state/
+          include_in_steady_state: NULL
+Revision: master:6e9a251ce06dce6af42939f64a2b9272fec566fd
+Compile date: Apr 19 2021 09:38:15
+OpenMP Support			no
+Adaptivity support		yes
+2D adaptivity support		no
+3D MBA support			no
+CGAL support			no
+MPI support			yes
+Double precision		yes
+NetCDF support			yes
+Signal handling support		yes
+Stream I/O support		yes
+PETSc support			yes
+Hypre support			yes
+ARPACK support			no
+Python support			yes
+Numpy support			yes
+VTK support			yes
+Zoltan support			no
+Memory diagnostics		no
+FEMDEM support			no
+Hyperlight support		no
+libsupermesh support		no
+fluidity.state_types imported successfully; location: 
+ Calling fluids from mainfl
+ in dqmom_check_options
+ Finished dqmom_check_options
+ Checking simulation completion options
+ Finished checking simulation completion options
+ Checking diagnostic fields related options
+ Finished checking diagnostic fields related options
+ Checking mesh options.
+ There are           3 meshes.
+ Done with problem type choice
+ Checking output options
+ Finished checking output options.
+ Checking checkpointing options
+ Finished checking checkpointing options
+ Checking k-epsilon options
+ Checking interpolation algorithm selection options
+ Finished checking interpolation algorithm selection options
+ Checking momentum discretisation options
+ Finished checking momentum discretisation options
+ Checking CG advection-diffusion options
+ Finished checking CG advection-diffusion options
+ Options sanity check successful
+ In populate_state
+ In initialise_ocean_forcing_readers
+ Exiting initialise_ocean_forcing_readers
+ There are           3 meshes.
+ Opening cube_disp_CoordinateMesh_1_checkpoint.msh for reading.
+ Adding element-element list to mesh CoordinateMesh
+ Adding node-element list to mesh CoordinateMesh
+ Using the new makeeelist
+ Number of surface elements:         8972
+ Number of unique surface elements:         8972
+ Inside get_coplanar_ids
+ Adding node-element list to mesh SurfaceCoordinateMesh
+ Before merge_surface_ids, n/o local coplanes:          11
+ In merge_surface_ids
+ Surface id stats for mesh CoordinateMesh
+ Surface id,  n/o surface elements,       surface area
+         1                    492     1.800000000E+04
+         2                   2016     7.680000000E+04
+         3                   1270     4.800000000E+04
+         4                    492     1.800000000E+04
+         5                   2832     4.742400000E+04
+         6                   1870     2.880000000E+03
+ Total number of surface elements:        8972
+Total surface area:     2.111040000E+05
+ domain_bbox - dim, range =           1  -160.00000000000000        160.00000000000000     
+ domain_bbox - dim, range =           2  -75.000000000000000        75.000000000000000     
+ domain_bbox - dim, range =           3   0.0000000000000000        120.00000000000000     
+ domain_volume =   5746176.0000000810     
+ In allocate_and_insert_scalar_field, field is: Pressure
+ Is field prognostic?  T
+ Is field prescribed?  F
+ Is field constant?  F
+ Is field diagnostic?  F
+ Pressure is on mesh PressureMesh
+     Inserting children of: /material_phase[0]/scalar_field::Pressure/prognostic
+     Inserting children of: /material_phase[0]/scalar_field::Pressure/prognostic/spatial_discretisation/inner_element
+ In allocate_and_insert_scalar_field, field is: CFLNumber
+ Is field prognostic?  F
+ Is field prescribed?  F
+ Is field constant?  F
+ Is field diagnostic?  T
+ CFLNumber is on mesh PressureMesh
+     Inserting children of: /material_phase[0]/scalar_field::CFLNumber/diagnostic
+     Inserting children of: /material_phase[0]/scalar_field::CFLNumber/diagnostic/spatial_discretisation/inner_element
+ In allocate_and_insert_scalar_field, field is: tracer1
+ Is field prognostic?  T
+ Is field prescribed?  F
+ Is field constant?  F
+ Is field diagnostic?  F
+ tracer1 is on mesh PressureMesh
+     Inserting children of: /material_phase[0]/scalar_field::tracer1/prognostic
+ In allocate_and_insert_scalar_field, field is: tracer1Source
+ Is field prognostic?  F
+ Is field prescribed?  T
+ Is field constant?  F
+ Is field diagnostic?  F
+ tracer1Source is on mesh PressureMesh
+     Inserting children of: /material_phase[0]/scalar_field::tracer1/prognostic/scalar_field::Source/prescribed
+     Inserting children of: /material_phase[0]/scalar_field::tracer1/prognostic/scalar_field::Source/prescribed/spatial_discretisation/inner_element
+ In allocate_and_insert_tensor_field, field is: tracer1Diffusivity
+ Is field prescribed?  T
+ Is field diagnostic?  F
+ Is field constant?  T
+     Inserting children of: /material_phase[0]/scalar_field::tracer1/prognostic/tensor_field::Diffusivity/prescribed
+     Inserting children of: /material_phase[0]/scalar_field::tracer1/prognostic/tensor_field::Diffusivity/prescribed/spatial_discretisation/inner_element
+     Inserting children of: /material_phase[0]/scalar_field::tracer1/prognostic/spatial_discretisation/inner_element
+ In allocate_and_insert_scalar_field, field is: tracer1Average
+ Is field prognostic?  F
+ Is field prescribed?  F
+ Is field constant?  F
+ Is field diagnostic?  T
+ tracer1Average is on mesh VelocityMesh
+     Inserting children of: /material_phase[0]/scalar_field::tracer1Average/diagnostic
+     Inserting children of: /material_phase[0]/scalar_field::tracer1Average/diagnostic/spatial_discretisation/inner_element
+ In allocate_and_insert_vector_field, field is: Velocity
+ Is field prognostic?  T
+ Is field prescribed?  F
+ Is field constant?  F
+ Is field diagnostic?  F
+ Velocity is on mesh VelocityMesh
+     Inserting children of: /material_phase[0]/vector_field::Velocity/prognostic
+ In allocate_and_insert_tensor_field, field is: Viscosity
+ Is field prescribed?  T
+ Is field diagnostic?  F
+ Is field constant?  T
+     Inserting children of: /material_phase[0]/vector_field::Velocity/prognostic/tensor_field::Viscosity/prescribed
+     Inserting children of: /material_phase[0]/vector_field::Velocity/prognostic/tensor_field::Viscosity/prescribed/spatial_discretisation/inner_element
+     Inserting children of: /material_phase[0]/vector_field::Velocity/prognostic/spatial_discretisation/inner_element
+ In initialise_prognostic_fields
+ Initialising field Pressure from file cube_disp_PressureMesh.vtu
+ vtk_cache_read_scalar_field - filename, fieldname: cube_disp_PressureMesh.vtu, Pressure
+ In vtk_cache_read_file, reading file: cube_disp_PressureMesh.vtu
+ vtk_cache_read_vector_field - filename, fieldname: cube_disp_PressureMesh.vtu, Coordinate
+ Initialising field tracer1 from file cube_disp_PressureMesh_1_checkpoint.vtu
+ vtk_cache_read_scalar_field - filename, fieldname: cube_disp_PressureMesh_1_checkpoint.vtu, tracer1
+ In vtk_cache_read_file, reading file: cube_disp_PressureMesh_1_checkpoint.vtu
+ vtk_cache_read_vector_field - filename, fieldname: cube_disp_PressureMesh_1_checkpoint.vtu, Coordinate
+ Initialising field Velocity from file cube_disp_VelocityMesh_1_checkpoint.vtu
+ vtk_cache_read_vector_field - filename, fieldname: cube_disp_VelocityMesh_1_checkpoint.vtu, Velocity
+ In vtk_cache_read_file, reading file: cube_disp_VelocityMesh_1_checkpoint.vtu
+ vtk_cache_read_vector_field - filename, fieldname: cube_disp_VelocityMesh_1_checkpoint.vtu, Coordinate
+ In set_prescribed_field_values
+ In populate_boundary_conditions
+ In set_boundary_conditions
+ setting a turbulent inlet boundary condition           1
+ number of eddies        4000
+ turbulence lengthscale min&max   20.000000000000000        20.000000000000000      :   20.000000000000000        20.000000000000000      :   20.000000000000000        20.000000000000000     
+ using a yz plane
+ surface info
+ x min&max  -160.00000000000000       -160.00000000000000        0.0000000000000000     
+ y min&max  -75.000000000000000        75.000000000000000        150.00000000000000     
+ z min&max   0.0000000000000000        120.00000000000000        120.00000000000000     
+ surface area   17999.999999999996     
+ number of nodes         274
+ convection velocity:   1.7381426567035707        0.0000000000000000        0.0000000000000000     
+ bounding box info
+ x min&max  -180.00000000000000       -140.00000000000000     
+ y min&max  -95.000000000000000        95.000000000000000     
+ z min&max  -20.000000000000000        140.00000000000000     
+ box volume   719999.99999999988     
+ inlet condition diagnostics
+ Re stresses min&max
+ Re_uu   0.0000000000000000      :  0.13882137833665498     
+ Re_vv   0.0000000000000000      :   6.9982299129354039E-002
+ Re_ww   0.0000000000000000      :   4.4638432937969846E-002
+ mean:fluctuating min&max
+ u   0.0000000000000000        2.1096689024823423      : -0.15617035198405235       0.15660308269231765     
+ v   0.0000000000000000        0.0000000000000000      : -0.12932479169469033        7.3293218118452477E-002
+ w   0.0000000000000000        0.0000000000000000      :  -9.4443059771118165E-002  0.13510754408008643     
+ leaving turbulent inlet boundary conditions routine
+ In set_dirichlet_consistent
+ For TICTOC_ID_IO_READ
+ Time =   0.31496354399999982     
+ Exiting populate_state
+ before have_option test
+ Checking dependencies for diagnostic fields in state: Air
+ Checking dependencies for diagnostic scalar field: CFLNumber
+ Checking dependencies for diagnostic scalar field: tracer1Average
+ In initialise_particles
+ In allocate_and_insert_auxilliary_fields
+ In enforce_discrete_properties
+ Processing fields in state Air
+   Considering algorithm solenoidal
+ Exiting enforce_discrete_properties
+ In dqmom_calculate_abscissa
+ Exiting dqmom_calculate_abscissa
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % Some quantities associated with the initial set-up of this problem. %
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ -
+ The time step (DT) is:                                    1.0000000000000000     
+ The end time (LTIME) is set to:                           20000.000000000000     
+ This corresponds to this many time steps in simulation:   20000.000000000000     
+ -
+ The maximum volume of element in the mesh is:   622.40152140420059     
+ The minimum volume of element in the mesh is:  0.34328861292104856     
+ The ratio of max to min volumes is:             1813.0561223926877     
+ The following material phases and their contents are in existence
+State: Air
+Meshes: 
+ +CoordinateMesh
+ +VelocityMesh
+ +PressureMesh
+Halos: 
+ none
+Scalar fields: 
+ +Pressure (Pressure)  on PressureMesh
+ +CFLNumber (CFLNumber)  on PressureMesh
+ +tracer1 (tracer1)  on PressureMesh
+ +tracer1Source (tracer1Source)  on PressureMesh
+ +tracer1Average (tracer1Average)  on VelocityMesh
+ +OldPressure (OldPressure)  on PressureMesh
+ +IteratedPressure (IteratedPressure)  on PressureMesh
+ +OldCFLNumber (OldCFLNumber)  on PressureMesh
+ +IteratedCFLNumber (IteratedCFLNumber)  on PressureMesh
+ +Oldtracer1 (Oldtracer1)  on PressureMesh
+ +Iteratedtracer1 (Iteratedtracer1)  on PressureMesh
+ +Oldtracer1Source (Oldtracer1Source)  on PressureMesh
+ +Iteratedtracer1Source (Iteratedtracer1Source)  on PressureMesh
+ +Oldtracer1Average (Oldtracer1Average)  on VelocityMesh
+ +Iteratedtracer1Average (Iteratedtracer1Average)  on VelocityMesh
+ +Time (Time)  on CoordinateMesh
+Vector fields: 
+ +Coordinate (Coordinate)  on CoordinateMesh
+ +Velocity (Velocity)  on VelocityMesh
+ +OldVelocity (OldVelocity)  on VelocityMesh
+ +IteratedVelocity (IteratedVelocity)  on VelocityMesh
+ +NonlinearVelocity (NonlinearVelocity)  on VelocityMesh
+ +OriginalCoordinate (OriginalCoordinate)  on CoordinateMesh
+ +OldCoordinate (OldCoordinate)  on CoordinateMesh
+ +IteratedCoordinate (IteratedCoordinate)  on CoordinateMesh
+ +GridVelocity (GridVelocity)  on CoordinateMesh
+Tensor fields: 
+ +tracer1Diffusivity (tracer1Diffusivity)  on PressureMesh
+ +Viscosity (Viscosity)  on VelocityMesh
+CSR sparsities: 
+ none
+CSR Matrices: 
+ none
+Block CSR Matrices: 
+ none
+ In particle_cv_check
+ In initialise_constant_particle_diagnostics
+ In calculate_diagnostic_variables
+ In dqmom_calculate_moments
+ Exiting dqmom_calculate_moments
+ In dqmom_calculate_statistics
+ Exiting dqmom_calculate_statistics
+ Exiting calculate_diagnostic_variables
+ In calculate_diagnostic_variables
+ Calculating diagnostic field: Air::CFLNumber
+ Calculating diagnostic field: Air::tracer1Average
+ Exiting calculate_diagnostic_variables
+ In calculate_diagnostic_fields_from_particles
+ In initialise_diagnostics
+ Registered diagnostics:
+ In initialise_detectors
+ Exiting initialise_diagnostics
+ do_checkpoint returning .false.
+ In write_state
+ Writing output 0 to vtu
+ In vtk_write_state_new_options
+ Writing using mesh VelocityMesh
+Writing 6 scalar field(s)
+Writing 1 vector field(s)
+Writing 1 tensor field(s)
+ Exiting vtk_write_state_new_options
+ Exiting write_state
+ In write_particles_loop
+ ********************
+ *** NEW TIMESTEP ***
+ ********************
+ Current simulation time:    1.0000000000000000     
+ Timestep number:            1
+ Timestep size (dt):    1.0000000000000000     
+ simulation_completed returning .false.
+ steady_state_tolerance,nonlinear_iterations:  -666.00999999999999                2
+ In set_boundary_conditions
+ setting a turbulent inlet boundary condition           1
+ number of eddies        4000
+ turbulence lengthscale min&max   20.000000000000000        20.000000000000000      :   20.000000000000000        20.000000000000000      :   20.000000000000000        20.000000000000000     
+ using a yz plane
+ surface info
+ x min&max  -160.00000000000000       -160.00000000000000        0.0000000000000000     
+ y min&max  -75.000000000000000        75.000000000000000        150.00000000000000     
+ z min&max   0.0000000000000000        120.00000000000000        120.00000000000000     
+ surface area   17999.999999999996     
+ number of nodes         274
+ convection velocity:   1.7381426567035707        0.0000000000000000        0.0000000000000000     
+ bounding box info
+ x min&max  -180.00000000000000       -140.00000000000000     
+ y min&max  -95.000000000000000        95.000000000000000     
+ z min&max  -20.000000000000000        140.00000000000000     
+ box volume   719999.99999999988     
+ inlet condition diagnostics
+ Re stresses min&max
+ Re_uu   0.0000000000000000      :  0.13882137833665498     
+ Re_vv   0.0000000000000000      :   6.9982299129354039E-002
+ Re_ww   0.0000000000000000      :   4.4638432937969846E-002
+ mean:fluctuating min&max
+ u   0.0000000000000000        2.1096689024823423      : -0.14301047639172754       0.14452042046353222     
+ v   0.0000000000000000        0.0000000000000000      : -0.12275662900437490        6.4781127843484915E-002
+ w   0.0000000000000000        0.0000000000000000      :  -8.5683465925805585E-002  0.13145080839428755     
+ leaving turbulent inlet boundary conditions routine
+ In set_prescribed_field_values
+ In enforce_discrete_properties
+ Processing fields in state Air
+   Considering algorithm solenoidal
+ Exiting enforce_discrete_properties
+ ###################
+ Start of another nonlinear iteration; ITS,nonlinear_iterations=           1           2
+ ###################
+Considering scalar field 1 of 3
+ Considering scalar field CFLNumber in state Air
+ Finished field CFLNumber in state Air
+Considering scalar field 2 of 3
+ Considering scalar field tracer1 in state Air
+ in solve_field_eqn_cv
+ solving for tracer1 in state Air
+ Min, max of tfield "tracer1" =   -4.7978443073853474E-006   8.6068040466636653     
+ Min, max of tfield "tracer1" =   -4.7978443073853474E-006   8.6068040466636653     
+ Min, max of oldtfield "Oldtracer1" =   -4.7978443073853474E-006   8.6068040466636653     
+ Min, max of nu "NonlinearVelocity%1" =    0.0000000000000000        2.1917204621533841     
+ Min, max of nu "NonlinearVelocity%2" =   -1.1581339241926640        1.0674165169753356     
+ Min, max of nu "NonlinearVelocity%3" =   -1.0177042123398583        1.1808890392707581     
+ Min, max of advu "AdvectionVelocity%1" =    0.0000000000000000        2.1917204621533841     
+ Min, max of advu "AdvectionVelocity%2" =   -1.1581339241926640        1.0674165169753356     
+ Min, max of advu "AdvectionVelocity%3" =   -1.0177042123398583        1.1808890392707581     
+ Min, max of diffusivity "tracer1Diffusivity%1,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%1,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%1,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%2,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%2,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%2,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%3,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%3,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%3,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of source "tracer1Source" =    0.0000000000000000        10.000000000000000     
+ In compute_cv_mass
+ Min, max of t_abs_src_cvmass "PressureMeshCVMass" =   0.56620137232427115        3820.3781396920044     
+ Min, max of t_cvmass "PressureMeshCVMass" =   0.56620137232427115        3820.3781396920044     
+ Not moving mesh.
+ entering subcycling_loop           1
+ In assemble_advectiondiffusion_m_cv
+ In find_upwind_values
+ For field tracer1 on sparsity from mesh CoordinateMesh
+ using simplex elements but haven't selected an upwind value method
+ defaulting to projection from a point
+ In calculate_all_upwind_project
+ Exiting calculate_all_upwind_project
+ Exiting find_upwind_values
+ Exiting assemble_advectiondiffusion_m_cv
+ In assemble_field_eqn_cv
+ Exiting assemble_field_eqn_cv
+ Assembling matrix.
+ Number of rows ==        10288
+ Matrix assembly completed.
+ Using solver options defined at: /material_phase[0]/scalar_field::tracer1/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: hypre
+ pc_hypre_type:boomeramg
+ ksp_type:cg
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:          500   1.0000000000000000E-010   9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ Delta_tracer1 CPU time spent in PETSc setup:    1.0381000000000196E-002
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ Entering solver.
+ Out of solver.
+ Delta_tracer1 CPU time spent in solver:    5.5018000000000011E-002
+ Delta_tracer1 MFlops counted by Petsc:    1.0576960000000000     
+ Delta_tracer1 MFlops/sec:    19.224544694463624     
+Delta_tracer1 PETSc reason of convergence: 2
+Delta_tracer1 PETSc n/o iterations: 2
+ In assemble_advectiondiffusion_m_cv
+ In find_upwind_values
+ For field tracer1 on sparsity from mesh CoordinateMesh
+ using simplex elements but haven't selected an upwind value method
+ defaulting to projection from a point
+ In calculate_all_upwind_project
+ Exiting calculate_all_upwind_project
+ Exiting find_upwind_values
+ Exiting assemble_advectiondiffusion_m_cv
+ In assemble_field_eqn_cv
+ Exiting assemble_field_eqn_cv
+ Assembling matrix.
+ Number of rows ==        10288
+ Matrix assembly completed.
+ Using solver options defined at: /material_phase[0]/scalar_field::tracer1/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: hypre
+ pc_hypre_type:boomeramg
+ ksp_type:cg
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:          500   1.0000000000000000E-010   9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ Delta_tracer1 CPU time spent in PETSc setup:    4.3500000000005201E-003
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ Entering solver.
+ Out of solver.
+ Delta_tracer1 CPU time spent in solver:    4.4656000000000251E-002
+ Delta_tracer1 MFlops counted by Petsc:    1.0576960000000000     
+ Delta_tracer1 MFlops/sec:    23.685417413113445     
+Delta_tracer1 PETSc reason of convergence: 2
+Delta_tracer1 PETSc n/o iterations: 2
+ Finished field tracer1 in state Air
+Considering scalar field 3 of 3
+ Considering scalar field tracer1Average in state Air
+ Finished field tracer1Average in state Air
+ Entering solve_momentum
+ Entering get_pressure_options
+ Entering get_phase_submaterials
+ Number of sub-materials =            1
+ Exiting get_phase_submaterials
+ Entering calculate_momentum_diagnostics
+ Entering calculate_diagnostic_phase_volume_fraction
+ Exiting calculate_diagnostic_phase_volume_fraction
+ Exiting calculate_momentum_diagnostics
+ Min, max of u "Velocity%1" =    0.0000000000000000        2.1917204621533841     
+ Min, max of u "Velocity%2" =   -1.1581339241926640        1.0674165169753356     
+ Min, max of u "Velocity%3" =   -1.0177042123398583        1.1808890392707581     
+ Entering get_velocity_options
+ Min, max of p "Pressure" =   -16.100619166185265        15.218993066089240     
+ Min, max of density "DummyDensity" =    1.0000000000000000        1.0000000000000000     
+ Entering construct_momentum_cg
+ Min, max of source "DummyVector%1" =    0.0000000000000000        0.0000000000000000     
+ Min, max of source "DummyVector%2" =    0.0000000000000000        0.0000000000000000     
+ Min, max of source "DummyVector%3" =    0.0000000000000000        0.0000000000000000     
+ Min, max of absorption "DummyVector%1" =    0.0000000000000000        0.0000000000000000     
+ Min, max of absorption "DummyVector%2" =    0.0000000000000000        0.0000000000000000     
+ Min, max of absorption "DummyVector%3" =    0.0000000000000000        0.0000000000000000     
+ Min, max of buoyancy "DummyScalar" =    0.0000000000000000        0.0000000000000000     
+ Min, max of viscosity "Viscosity%1,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%1,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%1,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%2,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%2,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%2,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%3,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%3,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%3,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Not moving mesh
+ Min, max of inverse_masslump "InverseLumpedMass%1" =    0.0000000000000000       0.10749653442464541     
+ Min, max of inverse_masslump "InverseLumpedMass%2" =    0.0000000000000000       0.10749653442464541     
+ Min, max of inverse_masslump "InverseLumpedMass%3" =    0.0000000000000000       0.10749653442464541     
+ Min, max of rhs "MomentumRHS%1" =   -31.432649907551333        13.673153592682022     
+ Min, max of rhs "MomentumRHS%2" =   -9.7610739220218150        7.6096943218272024     
+ Min, max of rhs "MomentumRHS%3" =   -9.7469323640919150        10.817462305383236     
+ Solving for optional LES diagnostic fields
+ Min, max of ct_m(istate)%ptr "VelocityDivergenceMatrix%1,1" =   -51.815354559181756        51.815354559181749     
+ Min, max of ct_m(istate)%ptr "VelocityDivergenceMatrix%1,2" =   -49.176866325395956        49.176866325395963     
+ Min, max of ct_m(istate)%ptr "VelocityDivergenceMatrix%1,3" =   -47.467773406550762        47.467773406550762     
+ Min, max of ctp_m(istate)%ptr "VelocityDivergenceMatrix%1,1" =   -51.815354559181756        51.815354559181749     
+ Min, max of ctp_m(istate)%ptr "VelocityDivergenceMatrix%1,2" =   -49.176866325395956        49.176866325395963     
+ Min, max of ctp_m(istate)%ptr "VelocityDivergenceMatrix%1,3" =   -47.467773406550762        47.467773406550762     
+ Min, max of ct_rhs(istate) "DivergenceRHS" =    0.0000000000000000        0.0000000000000000     
+ Assembling P1-P1 stabilisation
+ In compute_lumped_mass
+ Entering mult_div_invscalar_div_T
+ Entering assemble_masslumped_cmc
+ Entering mult_div_invvector_div_T
+ Min, max of cmc_m "PressurePoissonMatrix" =   -1.7619020172022384        14.222780768539605     
+ Adding P1-P1 stabilisation matrix to cmc_m
+ Entering advance_velocity
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ note that delta_u = ct_m^T*p at this stage
+ Min, max of delta_u "DeltaU%1" =   -60.238344340963714        235.70719380097177     
+ Min, max of delta_u "DeltaU%2" =   -144.69013486848920        197.22784466544198     
+ Min, max of delta_u "DeltaU%3" =   -123.75505548426236        176.01312522017395     
+ Using solver options defined at: /material_phase[0]/vector_field::Velocity/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: sor
+ ksp_type:gmres
+ restart:          30
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:          700   0.0000000000000000        9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ DeltaU CPU time spent in PETSc setup:    1.4700000000003044E-003
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ 2-norm of RHS:   1523.8974894415480     
+ inf-norm of RHS:   104.00965842454964     
+ Frobenius norm of matrix:   142363.69818437751     
+ inf-norm of matrix:   4198.9922835339175     
+ Entering solver.
+  0 KSP Residual norm 1.814755095043e+01 
+  1 KSP Residual norm 8.008366101592e-02 
+  2 KSP Residual norm 1.032215678379e-03 
+  3 KSP Residual norm 1.306237232874e-05 
+  4 KSP Residual norm 1.548473911236e-07 
+ Out of solver.
+ DeltaU CPU time spent in solver:    9.3019999999999214E-003
+ DeltaU MFlops counted by Petsc:    11.138828000000000     
+ DeltaU MFlops/sec:    1197.4659213072557     
+DeltaU PETSc reason of convergence: 2
+DeltaU PETSc n/o iterations: 4
+ 2-norm of solution:   18.114972045065812     
+ inf-norm of solution:   1.1195042603214331     
+ Min, max of delta_u "DeltaU%1" =  -0.91650552308376021       0.60558274535323386     
+ Min, max of delta_u "DeltaU%2" =   -1.1144780670237078        1.0161178564959561     
+ Min, max of delta_u "DeltaU%3" =  -0.87266969687456797        1.1195042603214331     
+ Min, max of u "Velocity%1" =  -0.70371304957515080        2.7325347368565214     
+ Min, max of u "Velocity%2" =   -2.2726119912163716        2.0835343734712914     
+ Min, max of u "Velocity%3" =   -1.8903739092144263        2.3003932995921912     
+ Entering assemble_projection
+ Min, max of kmk_rhs "KMKRHS" =   -12.856484697216979        9.5159620417907185     
+ Min, max of temp_projec_rhs "TempProjectionRHS" =   -12.816213224172266        21.671735908858018     
+ Min, max of projec_rhs "ProjectionRHS" =   -12.816213224172266        21.671735908858018     
+ Entering correct_pressure
+ Assembling matrix.
+ Number of rows ==        10288
+ Matrix assembly completed.
+ Using solver options defined at: /material_phase[0]/scalar_field::Pressure/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: hypre
+ pc_hypre_type:boomeramg
+ ksp_type:cg
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:         1700   0.0000000000000000        9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ DeltaP CPU time spent in PETSc setup:    2.2329000000000043E-002
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ 2-norm of RHS:   107.08724335563305     
+ inf-norm of RHS:   21.671735908858018     
+ Frobenius norm of matrix:   7865.2321598928684     
+ inf-norm of matrix:   461.67344984895391     
+ Entering solver.
+  0 KSP Residual norm 4.049960240606e+02 
+  1 KSP Residual norm 3.911353767820e+01 
+  2 KSP Residual norm 6.066945589433e+00 
+  3 KSP Residual norm 4.130834587425e-01 
+  4 KSP Residual norm 1.626841681662e-02 
+  5 KSP Residual norm 9.974130319311e-04 
+  6 KSP Residual norm 8.831178615448e-05 
+  7 KSP Residual norm 6.035346409787e-06 
+ Out of solver.
+ DeltaP CPU time spent in solver:   0.29672799999999988     
+ DeltaP MFlops counted by Petsc:    10.481432999999999     
+ DeltaP MFlops/sec:    35.323370224582796     
+DeltaP PETSc reason of convergence: 2
+DeltaP PETSc n/o iterations: 7
+ 2-norm of solution:   556.05625725450955     
+ inf-norm of solution:   17.743537308138048     
+ Min, max of delta_p "DeltaP" =   -8.7167879318328421        17.743537308138048     
+ Min, max of p "Pressure" =  -0.14691406785036504        9.5383936822978193     
+ correct_masslumped_velocity
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ Min, max of u "Velocity%1" =   -4.6001675439383272E-002   2.2472603740116659     
+ Min, max of u "Velocity%2" =   -1.3910908946109886        1.3193550823783111     
+ Min, max of u "Velocity%3" =  -0.99575042796575419        1.5032932159959596     
+ Entering finalise_state
+ In dqmom_apply_min_weight
+ Exiting dqmom_apply_min_weight
+ In dqmom_calculate_abscissa
+ Exiting dqmom_calculate_abscissa
+ In dqmom_calculate_moments
+ Exiting dqmom_calculate_moments
+ In dqmom_calculate_statistics
+ Exiting dqmom_calculate_statistics
+ ###################
+ Start of another nonlinear iteration; ITS,nonlinear_iterations=           2           2
+ ###################
+Considering scalar field 1 of 3
+ Considering scalar field CFLNumber in state Air
+ Finished field CFLNumber in state Air
+Considering scalar field 2 of 3
+ Considering scalar field tracer1 in state Air
+ in solve_field_eqn_cv
+ solving for tracer1 in state Air
+ Min, max of tfield "tracer1" =   -4.7978443073853474E-006   8.6068040466636653     
+ Min, max of tfield "tracer1" =   -1.0162033166664633E-003   14.877403956299878     
+ Min, max of oldtfield "Oldtracer1" =   -4.7978443073853474E-006   8.6068040466636653     
+ Min, max of nu "NonlinearVelocity%1" =   -1.1407180374185592E-002   2.2194904180825250     
+ Min, max of nu "NonlinearVelocity%2" =   -1.2746124094018263        1.1933857996768233     
+ Min, max of nu "NonlinearVelocity%3" =  -0.97695510640836769        1.3420911276333589     
+ Min, max of advu "AdvectionVelocity%1" =   -1.1407180374185592E-002   2.2194904180825250     
+ Min, max of advu "AdvectionVelocity%2" =   -1.2746124094018263        1.1933857996768233     
+ Min, max of advu "AdvectionVelocity%3" =  -0.97695510640836769        1.3420911276333589     
+ Min, max of diffusivity "tracer1Diffusivity%1,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%1,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%1,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%2,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%2,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%2,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%3,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%3,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of diffusivity "tracer1Diffusivity%3,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of source "tracer1Source" =    0.0000000000000000        10.000000000000000     
+ Min, max of t_abs_src_cvmass "PressureMeshCVMass" =   0.56620137232427115        3820.3781396920044     
+ Min, max of t_cvmass "PressureMeshCVMass" =   0.56620137232427115        3820.3781396920044     
+ Not moving mesh.
+ entering subcycling_loop           1
+ In assemble_advectiondiffusion_m_cv
+ In find_upwind_values
+ For field tracer1 on sparsity from mesh CoordinateMesh
+ using simplex elements but haven't selected an upwind value method
+ defaulting to projection from a point
+ In calculate_all_upwind_project
+ Exiting calculate_all_upwind_project
+ Exiting find_upwind_values
+ Exiting assemble_advectiondiffusion_m_cv
+ In assemble_field_eqn_cv
+ Exiting assemble_field_eqn_cv
+ Assembling matrix.
+ Number of rows ==        10288
+ Matrix assembly completed.
+ Using solver options defined at: /material_phase[0]/scalar_field::tracer1/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: hypre
+ pc_hypre_type:boomeramg
+ ksp_type:cg
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:          500   1.0000000000000000E-010   9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ Delta_tracer1 CPU time spent in PETSc setup:    4.2679999999997165E-003
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ Entering solver.
+ Out of solver.
+ Delta_tracer1 CPU time spent in solver:    4.4245000000000090E-002
+ Delta_tracer1 MFlops counted by Petsc:    1.0576960000000000     
+ Delta_tracer1 MFlops/sec:    23.905435642445426     
+Delta_tracer1 PETSc reason of convergence: 2
+Delta_tracer1 PETSc n/o iterations: 2
+ In assemble_advectiondiffusion_m_cv
+ In find_upwind_values
+ For field tracer1 on sparsity from mesh CoordinateMesh
+ using simplex elements but haven't selected an upwind value method
+ defaulting to projection from a point
+ In calculate_all_upwind_project
+ Exiting calculate_all_upwind_project
+ Exiting find_upwind_values
+ Exiting assemble_advectiondiffusion_m_cv
+ In assemble_field_eqn_cv
+ Exiting assemble_field_eqn_cv
+ Assembling matrix.
+ Number of rows ==        10288
+ Matrix assembly completed.
+ Using solver options defined at: /material_phase[0]/scalar_field::tracer1/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: hypre
+ pc_hypre_type:boomeramg
+ ksp_type:cg
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:          500   1.0000000000000000E-010   9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ Delta_tracer1 CPU time spent in PETSc setup:    4.0489999999993032E-003
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ Entering solver.
+ Out of solver.
+ Delta_tracer1 CPU time spent in solver:    4.2540999999999940E-002
+ Delta_tracer1 MFlops counted by Petsc:    1.0576960000000000     
+ Delta_tracer1 MFlops/sec:    24.862979243553312     
+Delta_tracer1 PETSc reason of convergence: 2
+Delta_tracer1 PETSc n/o iterations: 2
+ Finished field tracer1 in state Air
+Considering scalar field 3 of 3
+ Considering scalar field tracer1Average in state Air
+ Finished field tracer1Average in state Air
+ Entering solve_momentum
+ Entering get_pressure_options
+ Entering get_phase_submaterials
+ Number of sub-materials =            1
+ Exiting get_phase_submaterials
+ Entering calculate_momentum_diagnostics
+ Entering calculate_diagnostic_phase_volume_fraction
+ Exiting calculate_diagnostic_phase_volume_fraction
+ Exiting calculate_momentum_diagnostics
+ Min, max of u "Velocity%1" =    0.0000000000000000        2.1917204621533841     
+ Min, max of u "Velocity%2" =   -1.1581339241926640        1.0674165169753356     
+ Min, max of u "Velocity%3" =   -1.0177042123398583        1.1808890392707581     
+ Entering get_velocity_options
+ Min, max of p "Pressure" =  -0.14691406785036504        9.5383936822978193     
+ Min, max of density "DummyDensity" =    1.0000000000000000        1.0000000000000000     
+ Entering construct_momentum_cg
+ Min, max of source "DummyVector%1" =    0.0000000000000000        0.0000000000000000     
+ Min, max of source "DummyVector%2" =    0.0000000000000000        0.0000000000000000     
+ Min, max of source "DummyVector%3" =    0.0000000000000000        0.0000000000000000     
+ Min, max of absorption "DummyVector%1" =    0.0000000000000000        0.0000000000000000     
+ Min, max of absorption "DummyVector%2" =    0.0000000000000000        0.0000000000000000     
+ Min, max of absorption "DummyVector%3" =    0.0000000000000000        0.0000000000000000     
+ Min, max of buoyancy "DummyScalar" =    0.0000000000000000        0.0000000000000000     
+ Min, max of viscosity "Viscosity%1,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%1,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%1,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%2,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%2,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%2,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%3,1" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%3,2" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Min, max of viscosity "Viscosity%3,3" =    1.8099999999999999E-005   1.8099999999999999E-005
+ Not moving mesh
+ Min, max of inverse_masslump "InverseLumpedMass%1" =    0.0000000000000000       0.10749653442464541     
+ Min, max of inverse_masslump "InverseLumpedMass%2" =    0.0000000000000000       0.10749653442464541     
+ Min, max of inverse_masslump "InverseLumpedMass%3" =    0.0000000000000000       0.10749653442464541     
+ Min, max of rhs "MomentumRHS%1" =   -31.077609826809741        13.582774722838659     
+ Min, max of rhs "MomentumRHS%2" =   -9.7715380964626366        7.6120179316292855     
+ Min, max of rhs "MomentumRHS%3" =   -9.8430095143193377        10.861565627857575     
+ Solving for optional LES diagnostic fields
+ Min, max of ct_m(istate)%ptr "VelocityDivergenceMatrix%1,1" =   -51.815354559181756        51.815354559181749     
+ Min, max of ct_m(istate)%ptr "VelocityDivergenceMatrix%1,2" =   -49.176866325395956        49.176866325395963     
+ Min, max of ct_m(istate)%ptr "VelocityDivergenceMatrix%1,3" =   -47.467773406550762        47.467773406550762     
+ Min, max of ctp_m(istate)%ptr "VelocityDivergenceMatrix%1,1" =   -51.815354559181756        51.815354559181749     
+ Min, max of ctp_m(istate)%ptr "VelocityDivergenceMatrix%1,2" =   -49.176866325395956        49.176866325395963     
+ Min, max of ctp_m(istate)%ptr "VelocityDivergenceMatrix%1,3" =   -47.467773406550762        47.467773406550762     
+ Min, max of ct_rhs(istate) "DivergenceRHS" =    0.0000000000000000        0.0000000000000000     
+ Entering advance_velocity
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ note that delta_u = ct_m^T*p at this stage
+ Min, max of delta_u "DeltaU%1" =   -1041.6063700743082        116.71374046317091     
+ Min, max of delta_u "DeltaU%2" =   -674.21761423117619        815.06791862603336     
+ Min, max of delta_u "DeltaU%3" =   -788.02716300150848        689.26153035804691     
+ Using solver options defined at: /material_phase[0]/vector_field::Velocity/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: sor
+ ksp_type:gmres
+ restart:          30
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:          700   0.0000000000000000        9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ DeltaU CPU time spent in PETSc setup:    7.7100000000029922E-004
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ 2-norm of RHS:   1948.9184124787985     
+ inf-norm of RHS:   131.43471844876680     
+ Frobenius norm of matrix:   142364.78820686555     
+ inf-norm of matrix:   4200.8279937792749     
+ Entering solver.
+  0 KSP Residual norm 3.974614815529e+00 
+  1 KSP Residual norm 2.403023378114e-02 
+  2 KSP Residual norm 3.226639039698e-04 
+  3 KSP Residual norm 4.025095858648e-06 
+  4 KSP Residual norm 5.136521869061e-08 
+ Out of solver.
+ DeltaU CPU time spent in solver:    7.3500000000006338E-003
+ DeltaU MFlops counted by Petsc:    11.138828000000000     
+ DeltaU MFlops/sec:    1515.4868027209577     
+DeltaU PETSc reason of convergence: 2
+DeltaU PETSc n/o iterations: 4
+ 2-norm of solution:   3.9641494262472938     
+ inf-norm of solution:  0.34611566529254995     
+ Min, max of delta_u "DeltaU%1" =  -0.33383651024430566       0.16567399518027875     
+ Min, max of delta_u "DeltaU%2" =  -0.23347598128475605       0.25282468223744436     
+ Min, max of delta_u "DeltaU%3" =  -0.12523622382239644       0.34611566529254995     
+ Min, max of u "Velocity%1" =   -4.5182517520318481E-002   2.3018386236325306     
+ Min, max of u "Velocity%2" =   -1.3776661125365472        1.3202411992127798     
+ Min, max of u "Velocity%3" =   -1.0395871481176675        1.4863978102446076     
+ Entering assemble_projection
+ Min, max of kmk_rhs "KMKRHS" =   -9.8892660857916042        7.8010546696341514     
+ Min, max of temp_projec_rhs "TempProjectionRHS" =   -11.401483873333920        1.6764818573147267     
+ Min, max of projec_rhs "ProjectionRHS" =   -11.401483873333920        1.6764818573147267     
+ Entering correct_pressure
+ Assembling matrix.
+ Number of rows ==        10288
+ Matrix assembly completed.
+ Using solver options defined at: /material_phase[0]/scalar_field::Pressure/prognostic/solver
+ Inside setup_ksp_from_options
+ pc_type: hypre
+ pc_hypre_type:boomeramg
+ ksp_type:cg
+ ksp_max_it, ksp_atol, ksp_rtol, ksp_dtol:         1700   0.0000000000000000        9.9999999999999995E-008   10000.000000000000     
+ startfromzero: F
+ DeltaP CPU time spent in PETSc setup:    1.3291999999999859E-002
+ Assembling RHS.
+ RHS assembly completed.
+ Assembling initial guess.
+ Initial guess assembly completed.
+ 2-norm of RHS:   6.2734638221434453     
+ inf-norm of RHS:  0.58296600030820112     
+ Frobenius norm of matrix:   7865.2321598928684     
+ inf-norm of matrix:   461.67344984895391     
+ Entering solver.
+  0 KSP Residual norm 6.612325521622e+00 
+  1 KSP Residual norm 4.862788850237e-01 
+  2 KSP Residual norm 4.419500631861e-02 
+  3 KSP Residual norm 5.732964685129e-03 
+  4 KSP Residual norm 8.332729600311e-04 
+  5 KSP Residual norm 1.170782516791e-04 
+  6 KSP Residual norm 9.107395039494e-06 
+  7 KSP Residual norm 4.375955570380e-07 
+ Out of solver.
+ DeltaP CPU time spent in solver:   0.28443700000000049     
+ DeltaP MFlops counted by Petsc:    10.481432999999999     
+ DeltaP MFlops/sec:    36.849752317736375     
+DeltaP PETSc reason of convergence: 2
+DeltaP PETSc n/o iterations: 7
+ 2-norm of solution:   8.1262911327323195     
+ inf-norm of solution:  0.34893704725144065     
+ Min, max of delta_p "DeltaP" =  -0.24930084213393033       0.34893704725144065     
+ Min, max of p "Pressure" =  -0.14747423075320173        9.5522740088113594     
+ correct_masslumped_velocity
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ size(vector_in) =        10288
+ size(mat,1) =        10288
+ size(vector_out) =        10288
+ size(mat,2) =        10288
+ Min, max of u "Velocity%1" =   -5.1224728070157384E-002   2.2536449202410567     
+ Min, max of u "Velocity%2" =   -1.3516939028754524        1.2998589944958714     
+ Min, max of u "Velocity%3" =   -1.0411377238591695        1.4568919149321278     
+ Entering finalise_state
+ In dqmom_apply_min_weight
+ Exiting dqmom_apply_min_weight
+ In dqmom_calculate_abscissa
+ Exiting dqmom_calculate_abscissa
+ In dqmom_calculate_moments
+ Exiting dqmom_calculate_moments
+ In dqmom_calculate_statistics
+ Exiting dqmom_calculate_statistics
+ In calculate_sediment_bedload
+ In move_particles
+ In particle_cv_check
+ In calculate_diagnostic_fields_from_particles
+ In write_particles_loop
+ In calculate_diagnostic_variables
+ In dqmom_calculate_moments
+ Exiting dqmom_calculate_moments
+ In dqmom_calculate_statistics
+ Exiting dqmom_calculate_statistics
+ Exiting calculate_diagnostic_variables
+ In calculate_diagnostic_variables
+ Calculating diagnostic field: Air::CFLNumber
+ Calculating diagnostic field: Air::tracer1Average
+ Exiting calculate_diagnostic_variables
+ In write_diagnostics
+ Registered diagnostics:
+ In write_detectors
+ In set_dirichlet_consistent
+ For TICTOC_ID_TIMESTEP (excluding time in mesh adaptivity, if applicable)
+ Time =    8.2761932009999999     
+ Interrupt signal received
+ simulation_completed returning .true.
+ Checkpointing simulation
+ Checkpointing mesh CoordinateMesh
+ Checkpointing vector field Velocity in state Airon the VelocityMesh
+ Updating initial conditions for Velocity
+ Checkpointing scalar field Pressure in state Airon the PressureMesh
+ Updating initial conditions for Pressure
+ Checkpointing scalar field tracer1 in state Airon the PressureMesh
+ Updating initial conditions for tracer1
+ Checkpointing detectors
+ No Lagrangian detectors - not checkpointing detectors
+ Exiting checkpoint_detectors
+ Checkpointing options tree
+ In write_state
+ Writing output 1 to vtu
+ In vtk_write_state_new_options
+ Writing using mesh VelocityMesh
+Writing 6 scalar field(s)
+Writing 1 vector field(s)
+Writing 1 tensor field(s)
+ Exiting vtk_write_state_new_options
+ Exiting write_state
+ Printing references before final deallocation
+ Printing out all currently allocated references:
+ scalar_field PressureMeshLumpedMass has reference count 1
+ and id 56
+ csr_matrix PressureStabilisationMatrix has reference count 1
+ and id 10
+ csr_sparsity VelocityMeshVelocityMeshSparsity has reference count 1
+ and id 7
+ csr_matrix PressurePoissonMatrix has reference count 1
+ and id 9
+ csr_sparsity PressureMeshVelocityMeshDoubleSparsity has reference count 3
+ and id 6
+ block_csr_matrix VelocityDivergenceMatrix has reference count 1
+ and id 3
+ csr_sparsity PressureMeshVelocityMeshSparsity has reference count 2
+ and id 5
+ mesh_type PressureMeshDGSurfaceMesh has reference count 1
+ and id 12
+ scalar_field PressureMeshCVMass has reference count 1
+ and id 31
+ csr_sparsity PressureMeshPressureMeshSparsity has reference count 1
+ and id 4
+ scalar_field Time has reference count 1
+ and id 23
+ vector_field GridVelocity has reference count 1
+ and id 30
+ vector_field NonlinearVelocity has reference count 1
+ and id 29
+ vector_field IteratedVelocity has reference count 1
+ and id 28
+ vector_field OldVelocity has reference count 1
+ and id 27
+ scalar_field Iteratedtracer1Average has reference count 1
+ and id 22
+ scalar_field Oldtracer1Average has reference count 1
+ and id 21
+ scalar_field Iteratedtracer1 has reference count 1
+ and id 20
+ scalar_field Oldtracer1 has reference count 1
+ and id 19
+ scalar_field IteratedCFLNumber has reference count 1
+ and id 18
+ scalar_field OldCFLNumber has reference count 1
+ and id 17
+ scalar_field IteratedPressure has reference count 1
+ and id 16
+ scalar_field OldPressure has reference count 1
+ and id 15
+ vector_field value has reference count 1
+ and id 19
+ mesh_type BottomandWallsMesh has reference count 2
+ and id 11
+ vector_field value has reference count 1
+ and id 17
+ mesh_type TopMesh has reference count 2
+ and id 10
+ vector_field value has reference count 1
+ and id 15
+ mesh_type SidesMesh has reference count 2
+ and id 9
+ vector_field ReStressesProfile has reference count 1
+ and id 13
+ vector_field MeanProfile has reference count 1
+ and id 12
+ vector_field TurbulenceLengthscale has reference count 1
+ and id 11
+ vector_field value has reference count 1
+ and id 10
+ mesh_type InflowMesh has reference count 5
+ and id 8
+ scalar_field value has reference count 1
+ and id 14
+ mesh_type InflowMesh has reference count 2
+ and id 7
+ scalar_field value has reference count 1
+ and id 13
+ mesh_type OutletMesh has reference count 2
+ and id 6
+ tensor_field Viscosity has reference count 1
+ and id 2
+ vector_field Velocity has reference count 1
+ and id 2
+ scalar_field tracer1Average has reference count 1
+ and id 5
+ tensor_field tracer1Diffusivity has reference count 1
+ and id 1
+ scalar_field tracer1Source has reference count 3
+ and id 4
+ scalar_field tracer1 has reference count 1
+ and id 3
+ scalar_field CFLNumber has reference count 1
+ and id 2
+ scalar_field Pressure has reference count 1
+ and id 1
+ csr_sparsity NEListSparsity has reference count 1
+ and id 3
+ mesh_type SurfaceCoordinateMesh has reference count 1
+ and id 2
+ element_type  has reference count 9
+ and id 3
+ element_type  has reference count 1
+ and id 2
+ quadrature_type  has reference count 3
+ and id 2
+ csr_matrix CoordinateMeshFaceList has reference count 1
+ and id 1
+ csr_sparsity EEListSparsity has reference count 2
+ and id 2
+ csr_sparsity NEListSparsity has reference count 1
+ and id 1
+ vector_field Coordinate has reference count 4
+ and id 1
+ mesh_type CoordinateMesh has reference count 27
+ and id 1
+ quadrature_type  has reference count 1
+ and id 1
+ Removing node-element list from mesh PressureMesh
+ Removing element-element list from mesh PressureMesh
+ Removing node-element list from mesh SurfaceCoordinateMesh
+ Printing references after final deallocation
+ Printing out all currently allocated references:
+ There are no references left.
+ Exited fluids
+ For TICTOC_ID_SIMULATION
+ Time =    9.4485667220000007     

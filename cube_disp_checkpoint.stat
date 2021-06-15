@@ -1,0 +1,49 @@
+<header>
+<constant name="FluidityVersion" type="string" value="master:6e9a251ce06dce6af42939f64a2b9272fec566fd" />
+<constant name="CompileTime" type="string" value="Apr 19 2021 09:33:54" />
+<constant name="StartTime" type="string" value="20210525 121225.428+0200" />
+<constant name="HostName" type="string" value="Unknown" />
+<constant name="format" type="string" value="plain_text" />
+<field column="1" name="ElapsedTime" statistic="value"/>
+<field column="2" name="dt" statistic="value"/>
+<field column="3" name="ElapsedWallTime" statistic="value"/>
+<field column="4" name="CoordinateMesh" statistic="nodes"/>
+<field column="5" name="CoordinateMesh" statistic="elements"/>
+<field column="6" name="CoordinateMesh" statistic="surface_elements"/>
+<field column="7" name="Pressure" statistic="min" material_phase="Air"/>
+<field column="8" name="Pressure" statistic="max" material_phase="Air"/>
+<field column="9" name="Pressure" statistic="l2norm" material_phase="Air"/>
+<field column="10" name="Pressure" statistic="integral" material_phase="Air"/>
+<field column="11" name="CFLNumber" statistic="min" material_phase="Air"/>
+<field column="12" name="CFLNumber" statistic="max" material_phase="Air"/>
+<field column="13" name="CFLNumber" statistic="l2norm" material_phase="Air"/>
+<field column="14" name="CFLNumber" statistic="integral" material_phase="Air"/>
+<field column="15" name="tracer1" statistic="min" material_phase="Air"/>
+<field column="16" name="tracer1" statistic="max" material_phase="Air"/>
+<field column="17" name="tracer1" statistic="l2norm" material_phase="Air"/>
+<field column="18" name="tracer1" statistic="integral" material_phase="Air"/>
+<field column="19" name="tracer1Source" statistic="min" material_phase="Air"/>
+<field column="20" name="tracer1Source" statistic="max" material_phase="Air"/>
+<field column="21" name="tracer1Source" statistic="l2norm" material_phase="Air"/>
+<field column="22" name="tracer1Source" statistic="integral" material_phase="Air"/>
+<field column="23" name="tracer1Average" statistic="min" material_phase="Air"/>
+<field column="24" name="tracer1Average" statistic="max" material_phase="Air"/>
+<field column="25" name="tracer1Average" statistic="l2norm" material_phase="Air"/>
+<field column="26" name="tracer1Average" statistic="integral" material_phase="Air"/>
+<field column="27" name="Velocity%magnitude" statistic="min" material_phase="Air"/>
+<field column="28" name="Velocity%magnitude" statistic="max" material_phase="Air"/>
+<field column="29" name="Velocity%magnitude" statistic="l2norm" material_phase="Air"/>
+<field column="30" name="Velocity%1" statistic="min" material_phase="Air"/>
+<field column="31" name="Velocity%1" statistic="max" material_phase="Air"/>
+<field column="32" name="Velocity%1" statistic="l2norm" material_phase="Air"/>
+<field column="33" name="Velocity%1" statistic="integral" material_phase="Air"/>
+<field column="34" name="Velocity%2" statistic="min" material_phase="Air"/>
+<field column="35" name="Velocity%2" statistic="max" material_phase="Air"/>
+<field column="36" name="Velocity%2" statistic="l2norm" material_phase="Air"/>
+<field column="37" name="Velocity%2" statistic="integral" material_phase="Air"/>
+<field column="38" name="Velocity%3" statistic="min" material_phase="Air"/>
+<field column="39" name="Velocity%3" statistic="max" material_phase="Air"/>
+<field column="40" name="Velocity%3" statistic="l2norm" material_phase="Air"/>
+<field column="41" name="Velocity%3" statistic="integral" material_phase="Air"/>
+</header>
+  0.20000000000000000E+001  0.10000000000000000E+001  0.87140000000000004E+001 10288 49270 8972 -0.14747423075320173E+000  0.95522740088113594E+001  0.99337015087422205E+004  0.20379453314518489E+008  0.00000000000000000E+000  0.28731558110072797E+001  0.75664551146828501E+003  0.17229134589591543E+007 -0.68295136539279922E-005  0.14941347138037923E+002  0.13381900144027659E+003  0.37258293361537967E+004  0.00000000000000000E+000  0.10000000000000000E+002  0.86346413550716917E+002  0.18639257832678568E+004 -0.68295136539279922E-005  0.14941347138037923E+002  0.13381900144027659E+003  0.37258293361537967E+004  0.00000000000000000E+000  0.23988686113502289E+001  0.43080254729011567E+004 -0.51224728070157384E-001  0.22536449202410567E+001  0.43069911840537352E+004  0.10043205019232929E+008 -0.13516939028754524E+001  0.12998589944958714E+001  0.71338679224705757E+002 -0.99691715561433903E+004 -0.10411377238591695E+001  0.14568919149321278E+001  0.56286842677960870E+002  0.79269700339266892E+004

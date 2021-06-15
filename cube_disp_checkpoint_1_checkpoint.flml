@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<fluidity_options>
+    <simulation_name>
+        <string_value lines="1">cube_disp_checkpoint_checkpoint</string_value>
+    </simulation_name>
+    <problem_type>
+        <string_value lines="1">fluids</string_value>
+    </problem_type>
+    <geometry>
+        <dimension>
+            <integer_value rank="0">3</integer_value>
+        </dimension>
+        <mesh name="CoordinateMesh">
+            <from_file file_name="cube_disp_checkpoint_CoordinateMesh_1_checkpoint">
+                <format name="gmsh"></format>
+                <stat>
+                    <include_in_stat></include_in_stat>
+                </stat>
+            </from_file>
+        </mesh>
+        <mesh name="VelocityMesh">
+            <from_mesh>
+                <mesh name="CoordinateMesh"></mesh>
+                <stat>
+                    <exclude_from_stat></exclude_from_stat>
+                </stat>
+            </from_mesh>
+        </mesh>
+        <mesh name="PressureMesh">
+            <from_mesh>
+                <mesh name="CoordinateMesh"></mesh>
+                <stat>
+                    <exclude_from_stat></exclude_from_stat>
+                </stat>
+            </from_mesh>
+        </mesh>
+        <quadrature>
+            <degree>
+                <integer_value rank="0">4</integer_value>
+            </degree>
+        </quadrature>
+    </geometry>
+    <io>
+        <dump_format>
+            <string_value>vtk</string_value>
+        </dump_format>
+        <dump_period_in_timesteps>
+            <constant>
+                <integer_value rank="0">10</integer_value>
+            </constant>
+        </dump_period_in_timesteps>
+        <output_mesh name="VelocityMesh"></output_mesh>
+        <checkpointing>
+            <checkpoint_period_in_dumps>
+                <integer_value rank="0">25</integer_value>
+            </checkpoint_period_in_dumps>
+            <checkpoint_at_end></checkpoint_at_end>
+        </checkpointing>
+        <stat></stat>
+        <detectors>
+            <fail_outside_domain></fail_outside_domain>
+        </detectors>
+    </io>
+    <timestepping>
+        <current_time>
+            <real_value rank="0">2</real_value>
+        </current_time>
+        <timestep>
+            <real_value rank="0">1</real_value>
+        </timestep>
+        <finish_time>
+            <real_value rank="0">20000</real_value>
+        </finish_time>
+        <nonlinear_iterations>
+            <integer_value rank="0">2</integer_value>
+        </nonlinear_iterations>
+    </timestepping>
+    <material_phase name="Air">
+        <scalar_field name="Pressure" rank="0">
+            <prognostic>
+                <mesh name="PressureMesh"></mesh>
+                <spatial_discretisation>
+                    <continuous_galerkin></continuous_galerkin>
+                </spatial_discretisation>
+                <scheme>
+                    <poisson_pressure_solution>
+                        <string_value lines="1">never</string_value>
+                    </poisson_pressure_solution>
+                    <use_projection_method></use_projection_method>
+                </scheme>
+                <solver>
+                    <iterative_method name="cg"></iterative_method>
+                    <preconditioner name="hypre">
+                        <hypre_type name="boomeramg"></hypre_type>
+                    </preconditioner>
+                    <relative_error>
+                        <real_value rank="0">1e-07</real_value>
+                    </relative_error>
+                    <max_iterations>
+                        <integer_value rank="0">1700</integer_value>
+                    </max_iterations>
+                    <never_ignore_solver_failures></never_ignore_solver_failures>
+                    <diagnostics>
+                        <print_norms></print_norms>
+                        <monitors>
+                            <preconditioned_residual></preconditioned_residual>
+                        </monitors>
+                    </diagnostics>
+                </solver>
+                <boundary_conditions name="Outlet">
+                    <surface_ids>
+                        <integer_value rank="1" shape="1">4</integer_value>
+                    </surface_ids>
+                    <type name="dirichlet">
+                        <constant>
+                            <real_value rank="0">0</real_value>
+                        </constant>
+                    </type>
+                </boundary_conditions>
+                <output></output>
+                <stat></stat>
+                <convergence>
+                    <include_in_convergence></include_in_convergence>
+                </convergence>
+                <detectors>
+                    <exclude_from_detectors></exclude_from_detectors>
+                </detectors>
+                <steady_state>
+                    <include_in_steady_state></include_in_steady_state>
+                </steady_state>
+                <consistent_interpolation></consistent_interpolation>
+                <initial_condition name="WholeMesh">
+                    <from_file file_name="cube_disp_checkpoint_PressureMesh_1_checkpoint.vtu">
+                        <format name="vtu"></format>
+                    </from_file>
+                </initial_condition>
+            </prognostic>
+        </scalar_field>
+        <vector_field name="Velocity" rank="1">
+            <prognostic>
+                <mesh name="VelocityMesh"></mesh>
+                <equation name="Boussinesq"></equation>
+                <spatial_discretisation>
+                    <continuous_galerkin>
+                        <stabilisation>
+                            <no_stabilisation></no_stabilisation>
+                        </stabilisation>
+                        <mass_terms>
+                            <lump_mass_matrix></lump_mass_matrix>
+                        </mass_terms>
+                        <advection_terms></advection_terms>
+                        <stress_terms>
+                            <tensor_form></tensor_form>
+                        </stress_terms>
+                        <les_model>
+                            <second_order>
+                                <smagorinsky_coefficient>
+                                    <real_value rank="0">0.1</real_value>
+                                </smagorinsky_coefficient>
+                                <length_scale_type>tensor</length_scale_type>
+                            </second_order>
+                        </les_model>
+                        <buoyancy></buoyancy>
+                    </continuous_galerkin>
+                    <conservative_advection>
+                        <real_value rank="0">0</real_value>
+                    </conservative_advection>
+                </spatial_discretisation>
+                <temporal_discretisation>
+                    <theta>
+                        <real_value rank="0">0.5</real_value>
+                    </theta>
+                    <relaxation>
+                        <real_value rank="0">0.5</real_value>
+                    </relaxation>
+                </temporal_discretisation>
+                <solver>
+                    <iterative_method name="gmres">
+                        <restart>
+                            <integer_value rank="0">30</integer_value>
+                        </restart>
+                    </iterative_method>
+                    <preconditioner name="sor"></preconditioner>
+                    <relative_error>
+                        <real_value rank="0">1e-07</real_value>
+                    </relative_error>
+                    <max_iterations>
+                        <integer_value rank="0">700</integer_value>
+                    </max_iterations>
+                    <never_ignore_solver_failures></never_ignore_solver_failures>
+                    <diagnostics>
+                        <print_norms></print_norms>
+                        <monitors>
+                            <preconditioned_residual></preconditioned_residual>
+                        </monitors>
+                    </diagnostics>
+                </solver>
+                <boundary_conditions name="Inflow">
+                    <surface_ids>
+                        <integer_value rank="1" shape="1">1</integer_value>
+                    </surface_ids>
+                    <type name="dirichlet">
+                        <align_bc_with_cartesian>
+                            <x_component>
+                                <synthetic_eddy_method>
+                                    <number_of_eddies>
+                                        <integer_value rank="0">4000</integer_value>
+                                    </number_of_eddies>
+                                    <turbulence_lengthscale>
+                                        <constant>
+                                            <real_value rank="0">20</real_value>
+                                        </constant>
+                                    </turbulence_lengthscale>
+                                    <mean_profile>
+                                        <python>
+                                            <string_value lines="20" type="code" language="python">def val(X,t):&#x0A;   import numpy as np&#x0A;   Uref = 2.0&#x0A;   h = 100.0&#x0A;   znorm = X[2]/h&#x0A;   &#x0A;   if X[2] &gt; 0.0:&#x0A;      u = 0.1768*np.log(znorm) + 1.0226&#x0A;   else:&#x0A;      u = 0.0&#x0A;      &#x0A;   u = u*Uref&#x0A;      &#x0A;   return u</string_value>
+                                        </python>
+                                    </mean_profile>
+                                    <Re_stresses_profile>
+                                        <python>
+                                            <string_value lines="20" type="code" language="python">def val(X,t):&#x0A;   import numpy as np&#x0A;   Uref = 2.0&#x0A;   h = 100.0&#x0A;   znorm = X[2]/h&#x0A;   &#x0A;   uu_norm = 0.007*np.power(znorm,3) + 0.0085*np.power(znorm,2) - 0.0337*znorm + 0.0192&#x0A;&#x0A;   &#x0A;   uu = uu_norm*np.power(Uref,2)&#x0A;   &#x0A;   if X[2]&gt;h:&#x0A;     uu_norm = 0.007 + 0.0085 - 0.0337 + 0.0192&#x0A;     uu = uu_norm*np.power(Uref,2)&#x0A;   if X[2]==0:&#x0A;     uu=0.0&#x0A;   uu = 2.*uu&#x0A;   return uu</string_value>
+                                        </python>
+                                    </Re_stresses_profile>
+                                </synthetic_eddy_method>
+                            </x_component>
+                            <y_component>
+                                <synthetic_eddy_method>
+                                    <number_of_eddies>
+                                        <integer_value rank="0">4000</integer_value>
+                                    </number_of_eddies>
+                                    <turbulence_lengthscale>
+                                        <constant>
+                                            <real_value rank="0">20</real_value>
+                                        </constant>
+                                    </turbulence_lengthscale>
+                                    <mean_profile>
+                                        <constant>
+                                            <real_value rank="0">0</real_value>
+                                        </constant>
+                                    </mean_profile>
+                                    <Re_stresses_profile>
+                                        <python>
+                                            <string_value lines="20" type="code" language="python">def val(X,t):&#x0A;   import numpy as np&#x0A;   Uref = 2.0&#x0A;   h = 100.0&#x0A;   znorm = X[2]/h&#x0A;   &#x0A;   vv_norm = -0.0076*np.power(znorm,3) + 0.02*np.power(znorm,2) - 0.0218*znorm + 0.0099&#x0A;&#x0A;   &#x0A;   vv = vv_norm*np.power(Uref,2)&#x0A;   &#x0A;   if X[2]&gt;h:&#x0A;     vv_norm = -0.0076 + 0.02 - 0.0218 + 0.0099&#x0A;     vv = vv_norm*np.power(Uref,2)&#x0A;   if X[2]==0:&#x0A;     vv=0.0&#x0A;   vv = 2.*vv&#x0A;   return vv</string_value>
+                                        </python>
+                                    </Re_stresses_profile>
+                                </synthetic_eddy_method>
+                            </y_component>
+                            <z_component>
+                                <synthetic_eddy_method>
+                                    <number_of_eddies>
+                                        <integer_value rank="0">4000</integer_value>
+                                    </number_of_eddies>
+                                    <turbulence_lengthscale>
+                                        <constant>
+                                            <real_value rank="0">20</real_value>
+                                        </constant>
+                                    </turbulence_lengthscale>
+                                    <mean_profile>
+                                        <constant>
+                                            <real_value rank="0">0</real_value>
+                                        </constant>
+                                    </mean_profile>
+                                    <Re_stresses_profile>
+                                        <python>
+                                            <string_value lines="20" type="code" language="python">def val(X,t):&#x0A;   import numpy as np&#x0A;   Uref = 2.0&#x0A;   h = 100.0&#x0A;   znorm = X[2]/h&#x0A;   &#x0A;   ww_norm = -0.0021*np.power(znorm,3) + 0.0064*np.power(znorm,2) - 0.0097*znorm + 0.0061&#x0A;   &#x0A;   ww = ww_norm*np.power(Uref,2)&#x0A;   &#x0A;   if X[2]&gt;h:&#x0A;     ww_norm = -0.0021 + 0.0064 - 0.0097 + 0.0061&#x0A;     ww = ww_norm*np.power(Uref,2)&#x0A;   if X[2]==0:&#x0A;     ww=0.0&#x0A;   ww = 2.*ww&#x0A;   return ww</string_value>
+                                        </python>
+                                    </Re_stresses_profile>
+                                </synthetic_eddy_method>
+                            </z_component>
+                        </align_bc_with_cartesian>
+                    </type>
+                </boundary_conditions>
+                <boundary_conditions name="Sides">
+                    <surface_ids>
+                        <integer_value rank="1" shape="1">2</integer_value>
+                    </surface_ids>
+                    <type name="dirichlet">
+                        <align_bc_with_cartesian>
+                            <y_component>
+                                <constant>
+                                    <real_value rank="0">0</real_value>
+                                </constant>
+                            </y_component>
+                        </align_bc_with_cartesian>
+                    </type>
+                </boundary_conditions>
+                <boundary_conditions name="Top">
+                    <surface_ids>
+                        <integer_value rank="1" shape="1">3</integer_value>
+                    </surface_ids>
+                    <type name="dirichlet">
+                        <align_bc_with_cartesian>
+                            <z_component>
+                                <constant>
+                                    <real_value rank="0">0</real_value>
+                                </constant>
+                            </z_component>
+                        </align_bc_with_cartesian>
+                    </type>
+                </boundary_conditions>
+                <boundary_conditions name="BottomandWalls">
+                    <surface_ids>
+                        <integer_value rank="1" shape="2">5 6</integer_value>
+                    </surface_ids>
+                    <type name="dirichlet">
+                        <align_bc_with_cartesian>
+                            <x_component>
+                                <constant>
+                                    <real_value rank="0">0</real_value>
+                                </constant>
+                            </x_component>
+                            <y_component>
+                                <constant>
+                                    <real_value rank="0">0</real_value>
+                                </constant>
+                            </y_component>
+                            <z_component>
+                                <constant>
+                                    <real_value rank="0">0</real_value>
+                                </constant>
+                            </z_component>
+                        </align_bc_with_cartesian>
+                    </type>
+                </boundary_conditions>
+                <tensor_field name="Viscosity" rank="2">
+                    <prescribed>
+                        <value name="WholeMesh">
+                            <anisotropic_symmetric>
+                                <constant>
+                                    <real_value rank="2" shape="3 3" symmetric="true" dim2="dim" dim1="dim">1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05</real_value>
+                                </constant>
+                            </anisotropic_symmetric>
+                        </value>
+                        <output>
+                            <exclude_from_vtu></exclude_from_vtu>
+                        </output>
+                    </prescribed>
+                </tensor_field>
+                <output></output>
+                <stat>
+                    <include_in_stat></include_in_stat>
+                    <previous_time_step>
+                        <exclude_from_stat></exclude_from_stat>
+                    </previous_time_step>
+                    <nonlinear_field>
+                        <exclude_from_stat></exclude_from_stat>
+                    </nonlinear_field>
+                </stat>
+                <convergence>
+                    <include_in_convergence></include_in_convergence>
+                </convergence>
+                <detectors>
+                    <exclude_from_detectors></exclude_from_detectors>
+                </detectors>
+                <steady_state>
+                    <include_in_steady_state></include_in_steady_state>
+                </steady_state>
+                <consistent_interpolation></consistent_interpolation>
+                <initial_condition name="WholeMesh">
+                    <from_file file_name="cube_disp_checkpoint_VelocityMesh_1_checkpoint.vtu">
+                        <format name="vtu"></format>
+                    </from_file>
+                </initial_condition>
+            </prognostic>
+        </vector_field>
+        <scalar_field name="CFLNumber" rank="0">
+            <diagnostic>
+                <algorithm name="Internal" material_phase_support="multiple"></algorithm>
+                <mesh name="PressureMesh"></mesh>
+                <output></output>
+                <stat></stat>
+                <convergence>
+                    <include_in_convergence></include_in_convergence>
+                </convergence>
+                <detectors>
+                    <exclude_from_detectors></exclude_from_detectors>
+                </detectors>
+                <steady_state>
+                    <include_in_steady_state></include_in_steady_state>
+                </steady_state>
+            </diagnostic>
+        </scalar_field>
+        <scalar_field name="tracer1" rank="0">
+            <prognostic>
+                <mesh name="PressureMesh"></mesh>
+                <equation name="AdvectionDiffusion"></equation>
+                <spatial_discretisation>
+                    <control_volumes>
+                        <face_value name="FiniteElement">
+                            <limit_face_value>
+                                <limiter name="Sweby"></limiter>
+                            </limit_face_value>
+                        </face_value>
+                        <diffusion_scheme name="ElementGradient"></diffusion_scheme>
+                    </control_volumes>
+                    <conservative_advection>
+                        <real_value rank="0">0</real_value>
+                    </conservative_advection>
+                </spatial_discretisation>
+                <temporal_discretisation>
+                    <theta>
+                        <real_value rank="0">0.5</real_value>
+                    </theta>
+                    <control_volumes>
+                        <number_advection_iterations>
+                            <integer_value rank="0">2</integer_value>
+                        </number_advection_iterations>
+                    </control_volumes>
+                </temporal_discretisation>
+                <solver>
+                    <iterative_method name="cg"></iterative_method>
+                    <preconditioner name="hypre">
+                        <hypre_type name="boomeramg"></hypre_type>
+                    </preconditioner>
+                    <relative_error>
+                        <real_value rank="0">1e-07</real_value>
+                    </relative_error>
+                    <absolute_error>
+                        <real_value rank="0">1e-10</real_value>
+                    </absolute_error>
+                    <max_iterations>
+                        <integer_value rank="0">500</integer_value>
+                    </max_iterations>
+                    <never_ignore_solver_failures></never_ignore_solver_failures>
+                    <diagnostics>
+                        <monitors></monitors>
+                    </diagnostics>
+                </solver>
+                <boundary_conditions name="Inflow">
+                    <surface_ids>
+                        <integer_value rank="1" shape="1">1</integer_value>
+                    </surface_ids>
+                    <type name="dirichlet">
+                        <constant>
+                            <real_value rank="0">0</real_value>
+                        </constant>
+                    </type>
+                </boundary_conditions>
+                <tensor_field name="Diffusivity" rank="2">
+                    <prescribed>
+                        <value name="WholeMesh">
+                            <anisotropic_symmetric>
+                                <constant>
+                                    <real_value rank="2" shape="3 3" symmetric="true" dim2="dim" dim1="dim">1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05 1.81e-05</real_value>
+                                </constant>
+                            </anisotropic_symmetric>
+                        </value>
+                        <output></output>
+                    </prescribed>
+                </tensor_field>
+                <scalar_field name="Source" rank="0">
+                    <prescribed>
+                        <value name="WholeMesh">
+                            <python>
+                                <string_value type="code" lines="20" language="python">def val(X,t):&#x0A;  import numpy as np&#x0A;  X0 = -48.&#x0A;  Y0 = 0.0&#x0A;  Z0 = 12.&#x0A;  R = 4.&#x0A;  &#x0A;  s = 0.0&#x0A;  if(np.sqrt((X[0]-X0)**2. + (X[1]-Y0)**2. + (X[2]-Z0)**2.))&lt;=R:&#x0A;    s = 10.&#x0A;  &#x0A;  return s</string_value>
+                            </python>
+                        </value>
+                        <output></output>
+                        <stat></stat>
+                        <detectors>
+                            <exclude_from_detectors></exclude_from_detectors>
+                        </detectors>
+                    </prescribed>
+                </scalar_field>
+                <output></output>
+                <stat></stat>
+                <convergence>
+                    <include_in_convergence></include_in_convergence>
+                </convergence>
+                <detectors>
+                    <include_in_detectors></include_in_detectors>
+                </detectors>
+                <steady_state>
+                    <include_in_steady_state></include_in_steady_state>
+                </steady_state>
+                <consistent_interpolation></consistent_interpolation>
+                <initial_condition name="WholeMesh">
+                    <from_file file_name="cube_disp_checkpoint_PressureMesh_1_checkpoint.vtu">
+                        <format name="vtu"></format>
+                    </from_file>
+                </initial_condition>
+            </prognostic>
+        </scalar_field>
+        <scalar_field name="tracer1Average" rank="0">
+            <diagnostic>
+                <algorithm name="time_averaged_scalar" material_phase_support="single" source_field_type="scalar" source_field_name="tracer1">
+                    <spin_up_time>
+                        <real_value rank="0">50</real_value>
+                    </spin_up_time>
+                </algorithm>
+                <mesh name="VelocityMesh"></mesh>
+                <output></output>
+                <stat></stat>
+                <convergence>
+                    <include_in_convergence></include_in_convergence>
+                </convergence>
+                <detectors>
+                    <include_in_detectors></include_in_detectors>
+                </detectors>
+                <steady_state>
+                    <include_in_steady_state></include_in_steady_state>
+                </steady_state>
+            </diagnostic>
+        </scalar_field>
+    </material_phase>
+</fluidity_options>
